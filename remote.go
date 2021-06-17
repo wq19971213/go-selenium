@@ -65,6 +65,13 @@ type remoteWebDriver struct {
 	haveQuit   bool
 }
 
+// LogEntry https://github.com/SeleniumHQ/selenium/wiki/JsonWireProtocol#log-entry-json-object
+type LogEntry struct {
+	Timestamp int64  `json:"timestamp"`
+	Level     string `json:"level"`
+	Message   string `json:"message"`
+}
+
 func (wd *remoteWebDriver) SetContext(ctx context.Context) {
 	wd.ctx = ctx
 }
@@ -414,6 +421,24 @@ func (wd *remoteWebDriver) Title() (string, error) {
 
 func (wd *remoteWebDriver) PageSource() (string, error) {
 	return wd.stringCommand("/session/%s/source")
+}
+
+func (wd *remoteWebDriver) GetLog(logType string) (v []LogEntry, err error) {
+	var r *reply
+	data := map[string]string{"type": logType}
+	buf, _ := json.Marshal(data)
+	if r, err = wd.send("POST", wd.url("/session/%s/log", wd.id), buf); err == nil {
+		r.readValue(&v)
+	}
+	return
+}
+
+func (wd *remoteWebDriver) GetLogTypes() (v []string, err error) {
+	var r *reply
+	if r, err = wd.send("GET", wd.url("/session/%s/log/types", wd.id), nil); err == nil {
+		r.readValue(&v)
+	}
+	return
 }
 
 type element struct {

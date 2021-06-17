@@ -1,7 +1,8 @@
 package selenium // import "sourcegraph.com/sourcegraph/go-selenium"
-import "context"
-
-import "io"
+import (
+	"context"
+	"io"
+)
 
 /* Element finding options */
 const (
@@ -257,6 +258,13 @@ type WebDriver interface {
 	ExecuteScript(script string, args []interface{}) (interface{}, error)
 	/* Execute a script async. */
 	ExecuteScriptAsync(script string, args []interface{}) (interface{}, error)
+
+	// Log
+	/* Get available log types. */
+	GetLogTypes() ([]string, error)
+
+	/* Get the log for a given log type. */
+	GetLog(logType string) ([]LogEntry, error)
 
 	// Get a WebDriverT of this element that has methods that call t.Fatalf upon
 	// encountering errors instead of using multiple returns to indicate errors.
